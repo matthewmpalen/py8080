@@ -4,7 +4,7 @@ Intel 8080 emulator written in Python.
 
 ## Usage
 
-```python
+```bash
 python main.py --filename <filename>
 ```
 
