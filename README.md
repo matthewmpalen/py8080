@@ -1,5 +1,7 @@
 # py8080
 
+![Screenshot](https://i.imgur.com/vo2DaeX.png "Screenshot")
+
 Intel 8080 emulator written in Python.
 
 ## Usage
