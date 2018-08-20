@@ -56,8 +56,7 @@ class Emulator:
         surface = pygame.display.set_mode(self._display_size)
         pygame.display.set_caption(self._path)
 
-        black = 0, 0, 0
-        surface.fill(black)
+        surface.fill(self.BLACK)
         self._px_array = pygame.PixelArray(surface)
 
         pygame.display.update()
