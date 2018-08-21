@@ -1,6 +1,8 @@
 import pygame
 
 import cpu
+import pickle
+import time
 
 
 class Emulator:
@@ -18,9 +20,13 @@ class Emulator:
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
 
-    def __init__(self, path, width=256, height=224):
-        self._cpu = cpu.CPU(path)
-        self._cpu.init_instruction_table()
+    def __init__(self, path=None, width=256, height=224):
+        if path:
+            self._cpu = cpu.CPU(path)
+            self._cpu.init_instruction_table()
+        else:
+            self._cpu = None
+
         self._path = path
         self._width = width
         self._height = height
@@ -49,12 +55,40 @@ class Emulator:
 
                     vram >>= 1
 
+    def save(self):
+        """
+        Save CPU state to disk
+
+        :return:
+        """
+
+        timestamp = round(time.time())
+        state_path = 'saves/{}_{}.pickle'.format(self._path, timestamp)
+        with open(state_path, 'wb') as state_file:
+            pickle.dump(self._cpu, state_file)
+
+    @classmethod
+    def load(cls, state):
+        """
+        Load CPU state from disk
+
+        :param state: Pickle file
+        :return:
+        """
+
+        with open(state, 'rb') as state_file:
+            cpu = pickle.load(state_file)
+
+        emu = cls()
+        emu._cpu = cpu
+        return emu
+
     def run(self):
-        self._cpu.reset()
 
         pygame.init()
         surface = pygame.display.set_mode(self._display_size)
-        pygame.display.set_caption(self._path)
+        caption = 'Py8080: {}'.format(self._path if self._path else '')
+        pygame.display.set_caption(caption)
 
         surface.fill(self.BLACK)
         self._px_array = pygame.PixelArray(surface)
@@ -78,6 +112,9 @@ class Emulator:
                         self._cpu.io.in_port1 |= 0x20
                     if event.key == pygame.K_RIGHT:
                         self._cpu.io.in_port1 |= 0x40
+                    if event.key == pygame.K_6:
+                        # Save state
+                        self.save()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_c:

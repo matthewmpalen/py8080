@@ -1,3 +1,4 @@
+import logging
 import struct
 import io8080
 
@@ -11,6 +12,8 @@ class StackException(Exception):
 
 
 MAGIC_NUMBER = 16667
+
+logger = logging.getLogger('cpu')
 
 
 class CPU:
@@ -130,7 +133,7 @@ class CPU:
         if instruction is not None:
             instruction()
         else:
-            print("Opcode ERROR: " + str(self._current_inst))
+            logger.error("Opcode ERROR: " + str(self._current_inst))
 
         self._count += 1
 
@@ -1166,7 +1169,7 @@ class CPU:
 
     @staticmethod
     def _hlt():
-        print('HLT')
+        logger.info('HLT')
         exit(0)
 
     def set_b(self, data):
