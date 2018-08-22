@@ -60,7 +60,8 @@ class CPU:
                 a, = struct.unpack('c', byte)
                 self._memory.append(ord(a))
 
-        self._memory += [0] * (65536 - len(self._memory))  # ROM + RAM(work RAM and video RAM) = 16384 0x3fff
+        # ROM + RAM (work RAM and video RAM) = 16384 0x3fff
+        self._memory += [0] * (65536 - len(self._memory))
 
     @property
     def memory(self):
@@ -173,7 +174,9 @@ class CPU:
         :return:
         """
 
-        raise InvalidInstruction('Instruction={} not implemented'.format(self._current_inst))
+        raise InvalidInstruction(
+            'Instruction={} not implemented'.format(self._current_inst)
+        )
 
     def _jmp(self):
         """
@@ -1071,7 +1074,7 @@ class CPU:
         Stora A to memory
         :return:
         """
-        
+
         if self._current_inst == 0x02:
             self.write_byte(self._bc, self._a)
         elif self._current_inst == 0x12:
@@ -1090,7 +1093,7 @@ class CPU:
 
         :return:
         """
-        
+
         self._interrupt = False
         self._cycles += 4
 
@@ -1100,7 +1103,7 @@ class CPU:
         
         :return:
         """
-        
+
         self._interrupt = True
         self._cycles += 4
 
@@ -1110,7 +1113,7 @@ class CPU:
 
         :return:
         """
-        
+
         self._carry = True
         self._cycles += 4
 
@@ -1119,7 +1122,7 @@ class CPU:
         Complement carry flag
         :return:
         """
-        
+
         self._carry = not self._carry
         self._cycles += 4
 
@@ -1129,7 +1132,7 @@ class CPU:
 
         :return:
         """
-        
+
         self.set_hl(self.read_2bytes(self.fetch_rom_next_2bytes()))
         self._cycles += 16
 
@@ -1169,7 +1172,7 @@ class CPU:
 
         :return:
         """
-        
+
         self._a = (~self._a) & 0xFF
         self._cycles += 4
 
@@ -1252,7 +1255,6 @@ class CPU:
         self._zero = True if self._a == 0 else False
         self._sign = True if self._a & 0x80 > 0 else False
         self._parity = True if self._a % 2 == 0 else False
-        # self._half_carry = False if ((temp & 8)>>3) | ((value & 8)>>3) > 0 else True
 
     def _xor(self, value):
         self._a = self._a ^ value
@@ -1260,20 +1262,18 @@ class CPU:
         self._zero = True if self._a == 0 else False
         self._sign = True if self._a & 0x80 > 0 else False
         self._parity = True if self._a % 2 == 0 else False
-        # self._half_carry = False
 
     def _or(self, value):
         self._a = self._a | value
         self._carry = False
-        # self._half_carry = False
         self._zero = True if self._a == 0 else False
         self._sign = True if self._a & 0x80 > 0 else False
         self._parity = True if self._a % 2 == 0 else False
 
     def __add(self, in_value, carry=0):
         value = self._a + in_value + carry
-        # self._half_carry = True if (self.A & 0x0F) + (in_value & 0x0F) + carry > 0x0F else False
-        self._half_carry = True if (((self._a ^ value) ^ in_value) & 0x10) > 0 else False
+        self._half_carry = True if (((
+                                     self._a ^ value) ^ in_value) & 0x10) > 0 else False
         self._a = value & 0xFF
         self._carry = True if value > 255 or value < 0 else False
         self._sign = True if self._a & 0x80 > 0 else False
@@ -1283,8 +1283,8 @@ class CPU:
     def __sub(self, in_value, carry=0):
         value = self._a - in_value + carry
         x = value & 0xFF
-        # self._half_carry = True if (self.A & 0x0F) + (in_value & 0x0F) + carry > 0x0F else False
-        self._half_carry = True if ((self._a ^ value) ^ in_value) & 0x10 > 0 else False
+        self._half_carry = True if ((
+                                    self._a ^ value) ^ in_value) & 0x10 > 0 else False
         self._carry = True if value > 255 or value < 0 else  False
         self._a = value & 0xFF
         self._sign = True if x & 0x80 > 0 else False
@@ -1294,14 +1294,16 @@ class CPU:
     def _cmp_sub(self, in_value):
         value = self._a - in_value
         self._carry = True if value >= 255 or value < 0 else False
-        self._half_carry = True if ((self._a ^ value) ^ in_value) & 0x10 > 0 else False
+        self._half_carry = True if ((
+                                    self._a ^ value) ^ in_value) & 0x10 > 0 else False
         self._zero = True if value & 0xFF == 0 else False
         self._sign = True if (value & 0x80) > 0 else False
         self._parity = True if value % 2 == 0 else False
 
     def _stack_push(self, data):
         if data > 0xFFFF:
-            raise StackException('Push error: data={}, count={}'.format(data, self._count))
+            raise StackException(
+                'Push error: data={}, count={}'.format(data, self._count))
 
         self._sp -= 2
         self.write_2bytes(self._sp, data)
@@ -1314,7 +1316,8 @@ class CPU:
     def read_byte(self, address):
         byte_ = self._memory[address]
         if byte_ > 0xFF:
-            raise ValueError('{} is not a valid byte at {}'.format(byte_, address))
+            raise ValueError(
+                '{} is not a valid byte at {}'.format(byte_, address))
 
         return byte_
 
@@ -1335,8 +1338,8 @@ class CPU:
         return data
 
     def fetch_rom_next_2bytes(self):
-        # Read next 16 bits
-        data = (self._memory[self._pc + 1] << 8) + self._memory[self._pc]  # notice the endian
+        # Read next 16 bits (notice endian)
+        data = (self._memory[self._pc + 1] << 8) + self._memory[self._pc]
         self._pc += 2
         return data
 

@@ -34,7 +34,10 @@ class IO:
         elif port == 2:
             result = (self.in_port2 & 0x8F) | (self.in_port2 & 0x70)
         elif port == 3:
-            result = ((((self.out_port4_high << 8) | self.out_port4_low) << self.out_port2) >> 8) & 0xFF
+            out_port4 = (self.out_port4_high << 8) | self.out_port4_low
+            result = ((out_port4 << self.out_port2) >> 8) & 0xFF
+        else:
+            result = 0
 
         if result > 255:
             raise IOException('Invalid result={}'.format(result))
