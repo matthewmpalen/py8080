@@ -39,7 +39,7 @@ class Emulator:
         self._px_array = None
         self._fps = 60
 
-    def refresh(self):
+    def _refresh(self):
         """
         Update the pixel array
 
@@ -65,34 +65,6 @@ class Emulator:
                         self._px_array[i][y] = self.BLACK
 
                     vram >>= 1
-
-    def save(self):
-        """
-        Save CPU state to disk
-
-        :return:
-        """
-
-        timestamp = round(time.time())
-        state_path = 'saves/{}_{}.pickle'.format(self._path, timestamp)
-        with open(state_path, 'wb') as state_file:
-            pickle.dump(self._cpu, state_file)
-
-    @classmethod
-    def load(cls, state):
-        """
-        Load CPU state from disk
-
-        :param state: Pickle file
-        :return:
-        """
-
-        with open(state, 'rb') as state_file:
-            cpu = pickle.load(state_file)
-
-        emu = cls()
-        emu._cpu = cpu
-        return emu
 
     def _handle(self, event):
         if event.type == pygame.QUIT:
@@ -125,6 +97,34 @@ class Emulator:
             if event.key == pygame.K_RIGHT:
                 self._cpu.io.in_port1 &= 255 - 0x40
 
+    def save(self):
+        """
+        Save CPU state to disk
+
+        :return:
+        """
+
+        timestamp = round(time.time())
+        state_path = 'saves/{}_{}.pickle'.format(self._path, timestamp)
+        with open(state_path, 'wb') as state_file:
+            pickle.dump(self._cpu, state_file)
+
+    @classmethod
+    def load(cls, state):
+        """
+        Load CPU state from disk
+
+        :param state: Pickle file
+        :return:
+        """
+
+        with open(state, 'rb') as state_file:
+            cpu = pickle.load(state_file)
+
+        emu = cls()
+        emu._cpu = cpu
+        return emu
+
     def run(self):
         """
         Sets up display and starts game loop
@@ -148,6 +148,6 @@ class Emulator:
                 self._handle(event)
 
             self._cpu.run()
-            self.refresh()
+            self._refresh()
             fps_clock.tick(self._fps)
             pygame.display.update()
