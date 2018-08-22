@@ -4,6 +4,9 @@ import cpu
 import pickle
 import time
 
+MIN_WIDTH = 256
+MIN_HEIGHT = 224
+
 
 class Emulator:
     """
@@ -19,8 +22,9 @@ class Emulator:
 
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
+    ASPECT_RATIO = MIN_WIDTH / MIN_HEIGHT
 
-    def __init__(self, path=None, width=256, height=224):
+    def __init__(self, path=None, width=MIN_WIDTH):
         if path:
             self._cpu = cpu.CPU(path)
             self._cpu.init_instruction_table()
@@ -28,9 +32,9 @@ class Emulator:
             self._cpu = None
 
         self._path = path
-        self._width = width
-        self._height = height
-        self._display_size = height, width
+        self._width = max(MIN_WIDTH, width)
+        self._height = round(self._width / self.ASPECT_RATIO)
+        self._display_size = self._height, self._width
         self._px_array = None
         self._fps = 60
 
@@ -40,18 +44,24 @@ class Emulator:
 
         :return:
         """
-        for i in range(self._height):
-            index = 0x2400 + (i << 5)
 
-            for j in range(32):
-                vram = self._cpu._memory[index]
+        j_range = int(self._width * 0.125)
+        k_range = j_range // 4
+
+        for i in range(self._height):
+            index = self._cpu.VRAM_ADDRESS + (i << 5)
+
+            for j in range(j_range):
+                vram = self._cpu.memory[index]
                 index += 1
 
-                for k in range(8):
+                for k in range(k_range):
+                    y = self._width - 1 - j*k_range - k
+
                     if (vram & 0x01) == 1:
-                        self._px_array[i][255-j*8-k] = self.WHITE
+                        self._px_array[i][y] = self.WHITE
                     else:
-                        self._px_array[i][255-j*8-k] = self.BLACK
+                        self._px_array[i][y] = self.BLACK
 
                     vram >>= 1
 
@@ -84,6 +94,11 @@ class Emulator:
         return emu
 
     def run(self):
+        """
+        Sets up display and starts game loop
+
+        :return:
+        """
 
         pygame.init()
         surface = pygame.display.set_mode(self._display_size)

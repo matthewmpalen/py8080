@@ -17,6 +17,8 @@ logger = logging.getLogger('cpu')
 
 
 class CPU:
+    VRAM_ADDRESS = 0x2400
+
     def __init__(self, path):
         self._pc = 0
         self._sp = 0xF000  # Stack Pointer
@@ -59,6 +61,10 @@ class CPU:
                 self._memory.append(ord(a))
 
         self._memory += [0] * (65536 - len(self._memory))  # ROM + RAM(work RAM and video RAM) = 16384 0x3fff
+
+    @property
+    def memory(self):
+        return self._memory
 
     def reset(self):
         """
