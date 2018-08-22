@@ -23,6 +23,7 @@ class Emulator:
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
     ASPECT_RATIO = MIN_WIDTH / MIN_HEIGHT
+    CAPTION_FORMAT = 'Py8080: {}'
 
     def __init__(self, path=None, width=MIN_WIDTH):
         if path:
@@ -93,6 +94,37 @@ class Emulator:
         emu._cpu = cpu
         return emu
 
+    def _handle(self, event):
+        if event.type == pygame.QUIT:
+            exit()
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_c:
+                self._cpu.io.in_port1 |= 0x01
+            if event.key == pygame.K_1:
+                self._cpu.io.in_port1 |= 0x04
+            if event.key == pygame.K_SPACE:
+                self._cpu.io.in_port1 |= 0x10
+            if event.key == pygame.K_LEFT:
+                self._cpu.io.in_port1 |= 0x20
+            if event.key == pygame.K_RIGHT:
+                self._cpu.io.in_port1 |= 0x40
+            if event.key == pygame.K_6:
+                # Save state
+                self.save()
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_c:
+                self._cpu.io.in_port1 &= 255 - 0x01
+            if event.key == pygame.K_1:
+                self._cpu.io.in_port1 &= 255 - 0x04
+            if event.key == pygame.K_SPACE:
+                self._cpu.io.in_port1 &= 255 - 0x10
+            if event.key == pygame.K_LEFT:
+                self._cpu.io.in_port1 &= 255 - 0x20
+            if event.key == pygame.K_RIGHT:
+                self._cpu.io.in_port1 &= 255 - 0x40
+
     def run(self):
         """
         Sets up display and starts game loop
@@ -102,7 +134,7 @@ class Emulator:
 
         pygame.init()
         surface = pygame.display.set_mode(self._display_size)
-        caption = 'Py8080: {}'.format(self._path if self._path else '')
+        caption = self.CAPTION_FORMAT.format(self._path if self._path else '')
         pygame.display.set_caption(caption)
 
         surface.fill(self.BLACK)
@@ -113,35 +145,7 @@ class Emulator:
 
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    exit()
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_c:
-                        self._cpu.io.in_port1 |= 0x01
-                    if event.key == pygame.K_1:
-                        self._cpu.io.in_port1 |= 0x04
-                    if event.key == pygame.K_SPACE:
-                        self._cpu.io.in_port1 |= 0x10
-                    if event.key == pygame.K_LEFT:
-                        self._cpu.io.in_port1 |= 0x20
-                    if event.key == pygame.K_RIGHT:
-                        self._cpu.io.in_port1 |= 0x40
-                    if event.key == pygame.K_6:
-                        # Save state
-                        self.save()
-
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_c:
-                        self._cpu.io.in_port1 &= 255 - 0x01
-                    if event.key == pygame.K_1:
-                        self._cpu.io.in_port1 &= 255 - 0x04
-                    if event.key == pygame.K_SPACE:
-                        self._cpu.io.in_port1 &= 255 - 0x10
-                    if event.key == pygame.K_LEFT:
-                        self._cpu.io.in_port1 &= 255 - 0x20
-                    if event.key == pygame.K_RIGHT:
-                        self._cpu.io.in_port1 &= 255 - 0x40
+                self._handle(event)
 
             self._cpu.run()
             self.refresh()
