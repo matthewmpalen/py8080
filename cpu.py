@@ -11,7 +11,7 @@ class StackException(Exception):
     pass
 
 
-MAGIC_NUMBER = 16667
+MAX_CYCLES = 0x411B
 
 logger = logging.getLogger('cpu')
 
@@ -36,7 +36,7 @@ class CPU:
         self._hl = 0
 
         # Flags
-        self._sign = False  # True minus    MST
+        self._sign = False
         self._zero = False
         self._half_carry = False
         self._parity = False  # odd or even
@@ -91,7 +91,7 @@ class CPU:
         :return:
         """
 
-        for i in range(MAGIC_NUMBER):
+        for i in range(MAX_CYCLES):
             self.step()
 
     def run_cycles(self, cycles):
@@ -145,10 +145,10 @@ class CPU:
         self._count += 1
 
         # Check interrupt
-        if self._cycles >= MAGIC_NUMBER:
-            self._cycles -= MAGIC_NUMBER
+        if self._cycles >= MAX_CYCLES:
+            self._cycles -= MAX_CYCLES
             if self._interrupt:
-                if self._interrupt_alternate == True:
+                if self._interrupt_alternate:
                     self._call_interrupt(0x08)
                 else:
                     self._call_interrupt(0x10)
@@ -921,7 +921,6 @@ class CPU:
             value = self.fetch_rom_next_byte()
             self._cycles += 3
         else:
-            value = 0
             raise InvalidInstruction('CMP: {}'.format(self._current_inst))
 
         self._cmp_sub(value)
@@ -1272,8 +1271,12 @@ class CPU:
 
     def __add(self, in_value, carry=0):
         value = self._a + in_value + carry
-        self._half_carry = True if (((
-                                     self._a ^ value) ^ in_value) & 0x10) > 0 else False
+
+        if (((self._a ^ value) ^ in_value) & 0x10) > 0:
+            self._half_carry = True
+        else:
+            self._half_carry = False
+
         self._a = value & 0xFF
         self._carry = True if value > 255 or value < 0 else False
         self._sign = True if self._a & 0x80 > 0 else False
@@ -1283,8 +1286,12 @@ class CPU:
     def __sub(self, in_value, carry=0):
         value = self._a - in_value + carry
         x = value & 0xFF
-        self._half_carry = True if ((
-                                    self._a ^ value) ^ in_value) & 0x10 > 0 else False
+
+        if ((self._a ^ value) ^ in_value) & 0x10 > 0:
+            self._half_carry = True
+        else:
+            self._half_carry = False
+
         self._carry = True if value > 255 or value < 0 else  False
         self._a = value & 0xFF
         self._sign = True if x & 0x80 > 0 else False
@@ -1294,8 +1301,11 @@ class CPU:
     def _cmp_sub(self, in_value):
         value = self._a - in_value
         self._carry = True if value >= 255 or value < 0 else False
-        self._half_carry = True if ((
-                                    self._a ^ value) ^ in_value) & 0x10 > 0 else False
+        if ((self._a ^ value) ^ in_value) & 0x10 > 0:
+            self._half_carry = True
+        else:
+            self._half_carry = False
+
         self._zero = True if value & 0xFF == 0 else False
         self._sign = True if (value & 0x80) > 0 else False
         self._parity = True if value % 2 == 0 else False
