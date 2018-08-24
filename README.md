@@ -24,6 +24,11 @@ If no filename is provided, defaults to Space Invaders demo.
 4. Press `Space` to shoot
 5. Press `6` to save state
 
+Cheats:
+1. Press `s` to kill player (suicide)
+2. Press `k` to kill mobs
+3. Press `l` to add lives
+
 ### Notes
 
 1. Still contains unimplemented instructions
