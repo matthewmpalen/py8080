@@ -106,21 +106,6 @@ class CPU:
 
         return self._pc
 
-    def hack_kill_mobs(self):
-
-
-        #self._memory[0x20F8] = 9
-        #self._memory[0x20F9] = 9
-
-
-        #self._memory[0x20F1] = 1
-
-        diff = 0x2136 - 0x2100
-        self._memory[0x2100:0x2136] = [0] * diff
-
-    def hack_add_lives(self):
-        self._memory[0x21FF] = 7
-
     def flag(self):
         """
         Used for debugging
@@ -1640,3 +1625,17 @@ class CPU:
         self._instructions[0xFD] = self._nop
         self._instructions[0xFE] = self._cmp
         self._instructions[0xFF] = self._rst
+
+    #================
+    # Cheats & Hacks
+    #================
+
+    def hack_kill_player(self):
+        self._memory[0x2015] = 0
+
+    def hack_kill_mobs(self):
+        diff = 0x2136 - 0x2100
+        self._memory[0x2100:0x2136] = [0] * diff
+
+    def hack_add_lives(self):
+        self._memory[0x21FF] = 7
