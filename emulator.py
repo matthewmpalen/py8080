@@ -18,6 +18,10 @@ class Emulator:
       3. Press arrow keys to move
       4. Press 'Space' to shoot
 
+    Cheats:
+      1. Press 'k' to kill mobs
+      2. Press 'l' to add lives
+
     """
 
     BLACK = (0, 0, 0)
@@ -84,6 +88,10 @@ class Emulator:
             if event.key == pygame.K_6:
                 # Save state
                 self.save()
+            if event.key == pygame.K_k:
+                self._cpu.hack_kill_mobs()
+            if event.key == pygame.K_l:
+                self._cpu.hack_add_lives()
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_c:
