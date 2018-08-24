@@ -1,5 +1,6 @@
 import pygame
 
+from cheats import SpaceInvadersCheatEngine
 import cpu
 import pickle
 import time
@@ -22,6 +23,7 @@ class Emulator:
       1. Press 's' to kill player (suicide)
       2. Press 'k' to kill mobs
       3. Press 'l' to add lives
+      4. Press 'x' to break score
 
     """
 
@@ -36,6 +38,8 @@ class Emulator:
             self._cpu.init_instruction_table()
         else:
             self._cpu = None
+
+        self._cheats = SpaceInvadersCheatEngine(self._cpu.memory)
 
         self._path = path
         self._width = max(MIN_WIDTH, width)
@@ -90,11 +94,13 @@ class Emulator:
                 # Save state
                 self.save()
             if event.key == pygame.K_s:
-                self._cpu.hack_kill_player()
+                self._cheats.hack_kill_player()
             if event.key == pygame.K_k:
-                self._cpu.hack_kill_mobs()
+                self._cheats.hack_kill_mobs()
             if event.key == pygame.K_l:
-                self._cpu.hack_add_lives()
+                self._cheats.hack_add_lives()
+            if event.key == pygame.K_x:
+                self._cheats.hack_score()
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_c:

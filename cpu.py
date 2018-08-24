@@ -1625,17 +1625,3 @@ class CPU:
         self._instructions[0xFD] = self._nop
         self._instructions[0xFE] = self._cmp
         self._instructions[0xFF] = self._rst
-
-    #================
-    # Cheats & Hacks
-    #================
-
-    def hack_kill_player(self):
-        self._memory[0x2015] = 0
-
-    def hack_kill_mobs(self):
-        diff = 0x2136 - 0x2100
-        self._memory[0x2100:0x2136] = [0] * diff
-
-    def hack_add_lives(self):
-        self._memory[0x21FF] = 7

@@ -28,6 +28,7 @@ Cheats:
 1. Press `s` to kill player (suicide)
 2. Press `k` to kill mobs
 3. Press `l` to add lives
+4. Press `x` to break score
 
 ### Notes
 
