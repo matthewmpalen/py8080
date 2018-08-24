@@ -86,7 +86,7 @@ class CPU:
 
     def run(self):
         """
-        Starts CPU
+        Starts CPU and runs a given number of cycles per frame in UI
 
         :return:
         """
