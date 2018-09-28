@@ -36,10 +36,11 @@ class Emulator:
         if path:
             self._cpu = cpu.CPU(path)
             self._cpu.init_instruction_table()
+            self._cheats = SpaceInvadersCheatEngine(self._cpu.memory)
         else:
+            # From save state
             self._cpu = None
-
-        self._cheats = SpaceInvadersCheatEngine(self._cpu.memory)
+            self._cheats = None
 
         self._path = path
         self._width = max(MIN_WIDTH, width)
@@ -140,6 +141,7 @@ class Emulator:
 
         emu = cls()
         emu._cpu = cpu
+        emu._cheats = SpaceInvadersCheatEngine(cpu.memory)
         return emu
 
     def run(self):
